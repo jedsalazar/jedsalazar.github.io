@@ -1,0 +1,152 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #111111;
+    --fg: #b0b0b0;
+    --fg-bright: #e0e0e0;
+    --fg-muted: #5a5a5a;
+    --accent: #d19a66;
+    --accent-hover: #e4b884;
+    --font: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+    background: rgba(209, 154, 102, 0.2);
+    color: var(--fg-bright);
+}
+
+/* --- Header --- */
+
+header {
+    margin-bottom: 3rem;
+}
+
+h1 {
+    color: var(--fg-bright);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+}
+
+.prompt {
+    color: var(--fg-muted);
+    font-size: 0.8125rem;
+    margin-bottom: 0.125rem;
+}
+
+.subtitle {
+    color: var(--fg-muted);
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* --- About --- */
+
+.about {
+    margin-bottom: 3rem;
+}
+
+.about p {
+    margin-bottom: 1.25rem;
+}
+
+.about p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Work --- */
+
+.work {
+    margin-bottom: 3rem;
+}
+
+.work h2 {
+    color: var(--fg-muted);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    margin-bottom: 1.25rem;
+}
+
+.work ul {
+    list-style: none;
+}
+
+.work li {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.work strong {
+    color: var(--fg-bright);
+    font-weight: 600;
+}
+
+.muted {
+    color: var(--fg-muted);
+}
+
+/* --- Links --- */
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* --- Footer --- */
+
+footer {
+    padding-top: 2rem;
+    border-top: 1px solid #222222;
+}
+
+footer p {
+    color: var(--fg-muted);
+    font-size: 0.8125rem;
+}
+
+footer a {
+    color: var(--fg-muted);
+}
+
+footer a:hover {
+    color: var(--accent);
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 480px) {
+    body {
+        padding: 3rem 1.5rem 3rem;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+}

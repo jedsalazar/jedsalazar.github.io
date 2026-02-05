@@ -1,34 +1,58 @@
-<html>
-  <head>
-    <title>highly sophisticated professional website</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111111">
+    <meta name="description" content="jed salazar - security, infrastructure, trails">
+    <meta property="og:title" content="syscall.wtf">
+    <meta property="og:description" content="jed salazar - security, infrastructure, trails">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.syscall.wtf">
+    <title>syscall.wtf</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <head>
+    <link rel="stylesheet" href="style.css">
+    <!-- you expected a framework here? -->
+</head>
+<body>
+    <main>
+        <header>
+            <p class="prompt">$ whoami</p>
+            <h1>jed salazar</h1>
+            <p class="subtitle">somewhere between a terminal and a trailhead</p>
+        </header>
 
-<h1>
-jed salazar
-</h1>
+        <section class="about">
+            <p>I build things at the edge of security and infrastructure. Distributed systems, OS internals, cryptography, observability, network engineering. The deep, unglamorous work that keeps everything else from falling apart.</p>
 
-<h3>
-<ul>
-  <li><a href="https://github.com/jedsalazar">github</a>
-  <li><a href="https://youtu.be/dQw4w9WgXcQ">pgp key</a>
-</ul>
+            <p>I didn't follow the traditional path into tech. I came up from the ground, spent years building skills the hard way, and landed at Google. Then a string of startups where I keep doing the same thing: showing up early and turning a promising idea into something real. It never gets easier. I keep signing up for it. Currently doing exactly that as Field CTO at <a href="https://edera.dev">Edera</a>.</p>
 
-<h3>
-work (reverse-chronological)
-<ul>
-  <li>field CTO at <a href="https://edera.dev/">edera 🦀</a>
-  <li>staff security engineer at <a href="https://www.chainguard.dev/">chainguard 🔑</a>
-  <li>lead security architect at <a href="https://www.isovalent.com/">isovalent 🐝</a>
-  <li>tech lead customer reliability engineer at <a href="https://www.heptio.com/">heptio</a>
-  <li>{security,network,site reliability} engineer at <a href="https://www.google.com/">google</a>
-</ul>
+            <p>I grew up on O'Reilly books. Somehow I ended up <a href="https://learning.oreilly.com/library/view/security-observability-with/9781492096719/">writing one</a>. Still processing that.</p>
 
-books and talks
-<ul>
-  <li>o'reilly - <a href="https://learning.oreilly.com/library/view/security-observability-with/9781492096719/">security observability with ebpf</a>
-  <li>kubecon eu - <a href="https://youtu.be/bohnofE_dvw">uncovering a sophisticated attack in kubernetes</a>
-  <li>kubecon us - <a href="https://youtu.be/YgxUVTx1FEs">hitchhiker's guide to container security</a>
-</ul>
+            <p>When I'm not thinking about syscalls, I'm running ridgelines out of a van, chasing glaciers and coastline through the Pacific Northwest and Colorado with a dog that understands mountains better than I ever will. The endless bounty of wonder in nature &gt; xterm-256color.</p>
 
-<!--its html, what more do you want?-->
+            <p>I care about deep technology, not trends. Privacy, not surveillance. Community, not clout.</p>
+        </section>
+
+        <section class="work">
+            <h2>$ sort -r /var/log/career</h2>
+            <ul>
+                <li><strong>Edera</strong> <span class="muted">&middot; Field CTO &middot; 2024-</span></li>
+                <li><strong>Chainguard</strong> <span class="muted">&middot; Security Engineer / Architect TLM &middot; 2022-2024</span></li>
+                <li><strong>Isovalent</strong> <span class="muted">&middot; Tech Lead, Security Architect &middot; 2020-2022</span></li>
+                <li><strong>Heptio &rarr; VMware</strong> <span class="muted">&middot; Tech Lead, Customer Reliability &middot; 2018-2020</span></li>
+                <li><strong>Pivotal</strong> <span class="muted">&middot; Senior Platform Reliability &middot; 2017-2018</span></li>
+                <li><strong>Google</strong> <span class="muted">&middot; Security / SRE / Network Engineering &middot; 2008-2017</span></li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>
+                <a href="https://github.com/jedsalazar">github</a> &middot;
+                <a href="https://youtu.be/dQw4w9WgXcQ">pgp key</a>
+            </p>
+        </footer>
+    </main>
+    <!-- syscall returned ENOENT: self-importance not found -->
+</body>
+</html>
