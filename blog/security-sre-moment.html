@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111111">
+    <meta name="description" content="The security industry needs the same paradigm shift that turned operations into reliability engineering.">
+    <meta property="og:title" content="Why Security Needs Its SRE Moment | syscall.wtf">
+    <meta property="og:description" content="The security industry needs the same paradigm shift that turned operations into reliability engineering.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.syscall.wtf/blog/security-sre-moment">
+    <meta property="article:author" content="Jed Salazar">
+    <meta property="article:published_time" content="2026-02-08">
+    <title>Why Security Needs Its SRE Moment | syscall.wtf</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/blog/blog.css">
+</head>
+<body>
+    <main>
+        <nav>
+            <a href="/">&larr; syscall.wtf</a>
+        </nav>
+
+        <article>
+            <header>
+                <h1>Why Security Needs Its SRE Moment</h1>
+                <p class="meta">Jed Salazar &middot; February 2026</p>
+            </header>
+
+            <p>Something interesting is happening in AI. As the industry races to give AI agents more autonomy: browsing the web, writing and executing code, managing infrastructure, a quiet consensus has emerged: <strong>you have to sandbox agents.</strong> Every major AI lab has arrived at the same conclusion. AI agents run in an isolated environment with limited permissions, restricted network access, and scoped credentials. Not because we think the agent is malicious, because we know it's unpredictable. And if we're being honest, we probably should have arrived at this conclusion a long time ago.</p>
+
+            <p>This is the right instinct, and it reveals something the security industry has failed to internalize for decades.</p>
+
+            <p>Non-determinism is fundamentally incompatible with trust. And the security model we've built, every firewall rule, every allowlist, every least-privilege policy assumes you can enumerate valid behavior upfront. For a deterministic service that handles known inputs and produces known outputs, you can. For an AI agent, you fundamentally cannot. The valid behavior space is unbounded. An agent might legitimately install packages, write to arbitrary paths, and make network calls, but you can't reliably predict that outcome. And you cannot write a policy that distinguishes the two, because each operation is different every time. This is the point where a traditional security architect reaches for "behavioral analysis" or "anomaly detection," which is a polite way of saying "we'll figure it out later, in production, probably."</p>
+
+            <p>So we concede that we can't write policy to prevent bad outcomes, and instead we build a boundary around the blast radius. Put simply, we run it in a sandbox.</p>
+
+            <p>This is the correct security instinct. But here's the thing: it always has been. And almost nobody applies it to anything else. The rest of production infrastructure? Still running on shared kernels with ambient credentials and unrestricted egress, protected by a stack of tools that all fail at the same time. We've known this for years. We just haven't done anything about it.</p>
+
+            <h2>Hardening and Response are Missing a Layer</h2>
+
+            <p>The dominant model for securing production systems is: <strong>Harden, Detect, Respond.</strong> Invest heavily in prevention, deploy monitoring to catch what prevention misses, and staff an incident response team for when prevention and monitoring fail. Every security org, every compliance framework, every vendor product follows this pattern.</p>
+
+            <p>What's conspicuously absent is <em>containment</em>: the set of architectural decisions that automatically limit the blast radius before any detection system fires or any human is paged. The model should be <strong>Harden, Contain, Detect, Respond.</strong> But that middle layer barely exists in practice.</p>
+
+            <p>Consider what a typical production environment looks like after an attacker gains a foothold. A single compromised container runs on a shared kernel alongside dozens of other workloads. Every eBPF-based security agent, every LSM, every seccomp-bpf filter lives in that one kernel's address space. A kernel exploit doesn't just compromise one workload; it compromises every security control monitoring it. Let that sink in: the thing you deployed to watch for compromise is running in the same trust domain as the thing that got compromised. That's not defense in depth. That's defense in a trench coat pretending to be two people. The attacker finds ambient cloud credentials with broad permissions. Egress is unrestricted because the service needs to access various APIs, and no one has mapped them all (and they never will). Lateral movement is trivial because every service on the network implicitly trusts every other service.</p>
+
+            <p>The house of cards doesn't fall one card at a time. It collapses all at once.</p>
+
+            <p>This isn't a failure of any single tool. It's an architectural failure. We've built production systems in which every security control is pre-fail, designed to prevent compromise, and in which a single breach renders them all moot simultaneously. There is no failure domain. There is no blast radius. There is only "before" and "after."</p>
+
+            <h2>Containment Works. We Have Proof.</h2>
+
+            <p>If you want evidence that isolation changes the security equation, look at your phone.</p>
+
+            <p>Every iOS app has run in a sandbox since 2008. Android enforces per-app isolation through SELinux and unique UIDs. macOS requires sandboxing for App Store distribution. The result is that malware on these platforms is virtually nonexistent for ordinary users. When it does appear, it's the domain of sophisticated state-sponsored actors who have to chain multiple zero-days to escape the sandbox, and those exploits are worth millions precisely because the sandbox makes them so expensive to achieve.</p>
+
+            <p>Meanwhile, your average production Kubernetes cluster is running dozens of containers on a shared kernel with a flat network, and we call that "cloud-native security." The phone in your pocket has a better isolation model than most Fortune 500 production environments.</p>
+
+            <p>This isn't a coincidence. It's a direct consequence of treating isolation as the default rather than an optional hardening step.</p>
+
+            <p>Cloud providers learned the same lesson. AWS built Firecracker to isolate Lambda functions in lightweight microVMs. Google developed gVisor to intercept and sandbox container syscalls. Cloudflare uses V8 isolates for Workers. These are the organizations with the most sophisticated threat models on the planet, and they all independently converged on the same answer: you cannot solely rely on pre-fail controls; you must contain the blast radius of a compromise.</p>
+
+            <p>So why hasn't everyone else caught up? Because the tooling has been punishing. Running Kata Containers on Kubernetes means operating two intricate distributed systems stacked on top of each other. That's not a security architecture; it's a staffing problem. Most engineering organizations don't have the capacity to absorb that cognitive load. Isolation technologies have historically required you to be Google-scale to justify the operational investment.</p>
+
+            <p>Sandboxing either needs to be the default, as it is on iOS and Android, or it needs to be radically simple to deploy. There is no middle ground that achieves meaningful adoption.</p>
+
+            <h2>Reliability Engineering Already Solved This</h2>
+
+            <p>The security industry's resistance to containment architecture is especially frustrating because an adjacent discipline figured this out years ago.</p>
+
+            <p>Before Site Reliability Engineering, operations teams treated outages the way security teams treat breaches today: as failures of prevention. You hardened your systems, overprovisioned your infrastructure, and hoped nothing broke. When something inevitably did, you scrambled, and then you did it again next month, because there was no formal process to learn from the failure. Sound familiar?</p>
+
+            <p>SRE flipped the model. Failure isn't something to prevent; it's something to engineer around. Circuit breakers halt cascading failures automatically. Failure domains partition systems so that one component's failure doesn't cascade to the rest of the system. Graceful degradation ensures that partial failure produces degraded service, not total collapse. Chaos engineering proactively injects failure to validate resilience. Error budgets quantify acceptable failure rates and make risk tradeoffs explicit.</p>
+
+            <p>The result is systems like DNS, like Kubernetes, like the infrastructure underpinning every major cloud platform. Systems that survive individual component failures as a matter of routine.</p>
+
+            <p>Security has no equivalent discipline. No blast radius budgets. Red teams simulate breach scenarios, which is great, but their findings almost always result in more pre-fail hardening. Patch this vulnerability, fix that misconfiguration, add another detection rule. The red team proves the house of cards collapses, and the remediation is to add more cards. There are no architectural patterns that make compromise survivable by default. Having worked in both site reliability engineering and incident response, the gap between how these disciplines approach failure is the single most important unsolved problem in production security. SRE practitioners treat failure as a given and build systems to tolerate it. Security practitioners treat failure as something that shouldn't happen, and when it does, the architecture offers no help.</p>
+
+            <p>The MITRE ATT&CK framework already breaks the compromise lifecycle into discrete stages: initial access, privilege escalation, lateral movement, and exfiltration. Each of these represents an individual control that either held or failed. Today, we collapse these into a single binary: breached or not breached. But there's no reason we can't assign error budgets to each stage. How quickly can an attacker escalate privileges? How many workloads can they reach from a single foothold? How much data can they exfiltrate before containment kicks in? These are measurable properties of an architecture, and they should be engineered with the same rigor that SRE applies to availability.</p>
+
+            <p>I don't have a complete framework for what security error budgets should look like in practice. But I know that "breached or not breached" is a useless binary.</p>
+
+            <h2>Why This Hasn't Happened</h2>
+
+            <p>If the parallel between reliability engineering and security is so obvious, why hasn't the shift occurred? I wish the answer were technical. It's not. Follow the money.</p>
+
+            <p>SRE succeeded as a discipline partly because its core insight, <em>design for failure</em>, cannot be packaged and sold as a product. You can sell monitoring tools and incident management platforms, but the architectural philosophy remains a practice. It requires cultural change, not a purchase order.</p>
+
+            <p>Security was not so lucky. It turns out that "assume breach" fits neatly on a vendor slide deck right between "next-gen" and "AI-powered." The principles that emerged from efforts like Google's BeyondCorp: assume the network is hostile, authenticate every request, and scope every credential, were genuinely revolutionary. They represented exactly the kind of "assume failure" thinking that security needed. But the moment those ideas entered the broader market, every vendor selling firewalls, identity proxies, and endpoint agents rebranded overnight. The philosophy was strip-mined for marketing copy, and a genuine discipline was buried under a mountain of vendor slide decks. Practitioners rightfully roll their eyes at the term today, which is a tragedy, because the underlying principles were exactly right.</p>
+
+            <p>Confidential computing follows a similar trajectory. Hardware-based trusted execution environments promise strong isolation guarantees backed by cryptographic attestation. In principle, it's compelling. In practice, it's a sophisticated castle built on cryptography with a foundation of sand (pun intended). The speculative execution attacks of the late 2010s: Spectre, Meltdown, etc, systematically dismantled the assumption that hardware can serve as a trust boundary. The side-channel attack surface of modern processors is vast and poorly understood, and every major CPU vendor has shipped silicon with exploitable flaws. Confidential computing asks us to place the entire security perimeter in hardware from multiple vendors who have to get everything right, with no plan for when they don't. We watched Spectre and Meltdown burn through the assumption that hardware is trustworthy, said "Wow, that was bad," and then decided to build an entire security paradigm on... more hardware trust. The industry has a short memory.</p>
+
+            <p>It's more pre-fail thinking: build a bigger castle, trust a deeper foundation. Still no blast radius. Still no plan for failure.</p>
+
+            <p>The financial incentives of the security industry systematically reward adding more pre-fail controls rather than investing in architectural resilience. The result is organizations running dozens of security tools, all designed to prevent breaches, but none designed to limit the damage when one inevitably occurs. The security industry has an incredible product for every stage of the kill chain except the part where the attacker actually wins.</p>
+
+            <h2>Beyond AI Agents</h2>
+
+            <p>The AI sandboxing moment is significant, and not just for AI. It represents the first time the broader technology industry has collectively acknowledged that some workloads are fundamentally untrustable and must be structurally contained.</p>
+
+            <p>AI agents are categorically different from traditional software. A microservice has source code you can read, behavior you can reason about, and outputs you can predict. An AI agent is a probabilistic engine that produces different, non-reproducible behavior on identical inputs. That genuine non-determinism is what forced the industry to build containment rather than rely on policy alone.</p>
+
+            <p>But a compromised service is also non-deterministic. The moment an attacker gains a foothold, your source code is no longer what's running. The behavior you carefully enumerated in your security policies is irrelevant. Every pre-fail control that assumes deterministic behavior is operating on assumptions that no longer hold.</p>
+
+            <p>Any sufficiently complex system will fail. This isn't a security insight; it's an engineering axiom that nearly every other discipline has internalized. Security is the holdout. The pioneers of distributed systems and fault-tolerant computing understood it. We build replicated databases, redundant network paths, and self-healing orchestration because we accept that components fail. We need to extend this acceptance to security.</p>
+
+            <p>Concretely, that means the same patterns that already work at scale. Isolate workloads the way iOS isolates apps and Firecracker isolates Lambda functions &mdash; so that a compromise of one doesn't cascade. Scope credentials and make them short-lived, so a stolen token has limited utility and a short shelf life. Restrict egress the way Chrome's sandbox restricts renderer process access to the network &mdash; so a compromised service can't freely exfiltrate data. Build on immutable infrastructure so that persistence is difficult. These aren't novel ideas. They're proven patterns from the platforms with the strongest security track records on earth. The only thing missing is treating them as architectural defaults rather than aspirational hardening goals. We don't need to invent anything new. We just need to stop treating isolation like it's exotic and start treating it like plumbing.</p>
+
+            <p>The AI sandboxing moment is proving something important: when the industry decides isolation is necessary, it builds it. The tooling materializes, the developer experience improves, and adoption follows. We need to carry that energy beyond AI agents and into production infrastructure as a whole.</p>
+
+            <p>Security doesn't need another product. It needs the same paradigm shift that turned operations into reliability engineering. A discipline rooted in the reality that failure is inevitable, measured by the blast radius of individual failures, and engineered so that no single compromise can bring down the house.</p>
+
+            <p>The SRE moment security has been waiting for is long overdue.</p>
+        </article>
+
+        <footer>
+            <p>
+                <a href="/">syscall.wtf</a> &middot;
+                <a href="https://github.com/jedsalazar">github</a>
+            </p>
+        </footer>
+    </main>
+</body>
+</html>
